@@ -1,2 +1,4 @@
 # net
-base library refered from google quic and webrtc
+code copier (Most of the codes are referred from google quic and webrtc projects).   
+# Build
+A base library for dash-miniet and tpproxy.  
