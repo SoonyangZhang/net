@@ -105,8 +105,8 @@ void MockBackend::CreateEndpoint(basic::BaseContext *context,int fd){
     MockEndpoint *endpoint=new MockEndpoint(context,fd,id_++);
     UNUSED(endpoint);
 }
-PhysicalSocketServer::PhysicalSocketServer(basic::BaseContext *context,Backend *backend)
-:context_(context),backend_(backend){}
+PhysicalSocketServer::PhysicalSocketServer(basic::BaseContext *context, std::unique_ptr<Backend> backend)
+:context_(context),backend_(std::move(backend)){}
 PhysicalSocketServer::~PhysicalSocketServer(){
     context_->epoll_server()->UnregisterFD(fd_);
     Close();

@@ -1,15 +1,12 @@
 #pragma once
+#include <utility>
+#include <memory>
+#include <deque>
+#include "base_mutex.h"
+#include "base_magic.h"
 #include "epoll_api.h"
 #include "base_clock.h"
 #include "base_alarm_factory.h"
-namespace std
-{
-template<typename T, typename ...Args>
-std::unique_ptr<T> make_unique( Args&& ...args )
-{
-    return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) );
-}
-}
 namespace basic{
 class QueuedTask {
  public:
@@ -61,18 +58,26 @@ static std::unique_ptr<QueuedTask> NewClosure(Closure&& closure,
 
 class BaseContext{
 public:
-    virtual ~BaseContext(){}
-    virtual const QuicClock *clock()=0;
-    virtual BaseAlarmFactory* alarm_factory() =0;
-    virtual EpollServer* epoll_server() =0;
+    BaseContext();
+    virtual ~BaseContext();
+    const QuicClock *clock() {return clock_.get();}
+    BaseAlarmFactory* alarm_factory() {return alarm_factory_.get();}
+    EpollServer* epoll_server() {return &epoll_server_;}
     template <class Closure,
           typename std::enable_if<!std::is_convertible<
               Closure,
               std::unique_ptr<QueuedTask>>::value>::type* = nullptr>
     void PostTask(Closure&& closure){
         PostInnerTask(NewClosure(std::forward<Closure>(closure)));
-    } 
+    }
+    void HandleEvent();
 protected:
-    virtual void PostInnerTask(std::unique_ptr<QueuedTask> task)=0;
+    void PostInnerTask(std::unique_ptr<QueuedTask> task);
+    void ExecuteTask();
+    basic::EpollServer epoll_server_;
+    std::unique_ptr<QuicClock> clock_;
+    std::unique_ptr<BaseAlarmFactory> alarm_factory_;
+    mutable basic::Mutex task_mutex_;
+    std::deque<std::unique_ptr<basic::QueuedTask>>  queued_tasks_;
 };    
 }

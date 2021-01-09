@@ -18,10 +18,10 @@ class MockSocketFactory:public SocketServerFactory{
 public:
     MockSocketFactory(){}
     PhysicalSocketServer* CreateSocketServer(BaseContext *context){
-        return new PhysicalSocketServer(context,&backend_);
+        std::unique_ptr<MockBackend> backend_(new MockBackend);
+        return new PhysicalSocketServer(context,std::move(backend_));
     }
 private:
-    MockBackend backend_;
 };
 }
 int main(int argc, char *argv[]){

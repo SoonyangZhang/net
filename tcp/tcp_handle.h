@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include "base/base_context.h"
 #include "base/epoll_api.h"
 #include "base/ip_address.h"
@@ -48,7 +49,7 @@ private:
 };
 class PhysicalSocketServer:public basic::EpollCallbackInterface{
 public:    
-    PhysicalSocketServer(basic::BaseContext *context,Backend *backend);
+    PhysicalSocketServer(basic::BaseContext *context, std::unique_ptr<Backend> backend);
     ~PhysicalSocketServer();
     bool Create(int family, int type);
     int Bind(basic::IpAddress &ip,uint16_t port);
@@ -67,7 +68,7 @@ private:
     int Accept(sockaddr* addr,socklen_t* addrlen);
     void Close();
     basic::BaseContext* context_=nullptr;
-    Backend *backend_=nullptr;
+    std::unique_ptr<Backend> backend_;
     int  fd_=-1;
 };
 }
