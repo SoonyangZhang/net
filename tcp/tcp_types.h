@@ -2,8 +2,9 @@
 #include <stdint.h>
 namespace basic{
 enum TcpConnectionStatus:uint8_t{
-    CONNECTING,
-    CONNECTED,
-    DISCONNECT,
+    TCP_STATUS_MIN,
+    TCP_CONNECTING,
+    TCP_CONNECTED,
+    TCP_DISCONNECT,
 };    
 }

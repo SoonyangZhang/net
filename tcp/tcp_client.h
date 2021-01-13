@@ -22,7 +22,7 @@ private:
     struct sockaddr_storage src_addr_;
     struct sockaddr_storage dst_addr_;
     int fd_=-1;
-    TcpConnectionStatus status_{DISCONNECT};
+    TcpConnectionStatus status_=TCP_STATUS_MIN;
     int count_=0;
 };
 }

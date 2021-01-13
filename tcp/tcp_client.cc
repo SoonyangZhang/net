@@ -6,6 +6,7 @@
 namespace basic{
 TcpClient::TcpClient(basic::EpollServer *eps):eps_(eps){}
 TcpClient::~TcpClient(){
+    status_=TCP_DISCONNECT;
     eps_->UnregisterFD(fd_);
     Close();
 }
@@ -36,7 +37,7 @@ bool TcpClient::AsynConnect(basic::SocketAddress &local,basic::SocketAddress& re
             return success;                
         }   
     }
-    status_=CONNECTING;
+    status_=TCP_CONNECTING;
     return true;
 }
 void TcpClient::OnEvent(int fd, basic::EpollEvent* event){
@@ -49,8 +50,8 @@ void TcpClient::OnEvent(int fd, basic::EpollEvent* event){
         std::cout << status << " " << err <<" "<<count_<<std::endl;        
     }   
     if(event->in_events&EPOLLOUT){
-        if(status_==CONNECTING){
-            status_=CONNECTED;
+        if(status_==TCP_CONNECTING){
+            status_=TCP_CONNECTED;
             eps_->ModifyCallback(fd_,EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLET);
             OnCanWrite();
         }
@@ -70,7 +71,7 @@ void TcpClient::OnCanWrite(){
 }
 void TcpClient::Close(){
     if(fd_>0){
-        status_=DISCONNECT;
+        status_=TCP_DISCONNECT;
         close(fd_);
         fd_=-1;        
     }      
