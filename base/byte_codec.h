@@ -91,7 +91,7 @@ public:
     size_t length() const { return length_; }
     
     // Retrieves the buffer from the QuicheDataWriter without changing ownership.
-    char* data();
+    char* data() {return buffer_;}
     
     // Methods for adding to the payload.  These values are appended to the end
     // of the QuicheDataWriter payload.

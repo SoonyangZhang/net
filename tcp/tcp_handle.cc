@@ -9,7 +9,6 @@
 #include "base/net_endian.h"
 namespace basic{
 namespace {
-const int kEpollFlags = EPOLLIN|EPOLLET;
 const int kBufferSize=1500;    
 }
 class SocketUtil{
@@ -38,7 +37,7 @@ static size_t ToSockAddrStorageHelper(sockaddr_storage* addr,
 MockEndpoint::MockEndpoint(basic::BaseContext *context,int fd,int id):
 context_(context),fd_(fd),id_(id){
     OpenTrace();
-    context_->epoll_server()->RegisterFD(fd_, this, kEpollFlags);
+    context_->epoll_server()->RegisterFD(fd_, this, EPOLLIN|EPOLLET);
 }
 MockEndpoint::~MockEndpoint(){
     CloseTrace();
@@ -71,6 +70,7 @@ void MockEndpoint::OnReadEvent(int fd){
             std::cout<<"close connection"<<std::endl;
             context_->epoll_server()->UnregisterFD(fd_);            
         }else{
+             std::cout<<"MockEndpoint::OnReadEvent "<<nbytes<<std::endl;
              recv_bytes_+=nbytes;
         }       
     }    
@@ -130,7 +130,7 @@ int PhysicalSocketServer::Listen(int backlog){
     if(fd_>=0){
         err = ::listen(fd_, backlog);
         if(err==0){
-            context_->epoll_server()->RegisterFD(fd_, this, kEpollFlags);
+            context_->epoll_server()->RegisterFD(fd_, this,EPOLLIN);
         }
     }
     return err;
@@ -167,6 +167,7 @@ void PhysicalSocketServer::OnReadEvent(int fd){
     socklen_t addr_len = sizeof(addr_storage);
     sockaddr* addr = reinterpret_cast<sockaddr*>(&addr_storage);
     int s=Accept(addr,&addr_len);
+    std::cout<<"PhysicalSocketServer::OnReadEvent "<<s<<std::endl;
     if(s>=0){
         backend_->CreateEndpoint(context_,s);
     }
