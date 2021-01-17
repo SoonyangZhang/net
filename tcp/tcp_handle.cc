@@ -67,10 +67,8 @@ void MockEndpoint::OnReadEvent(int fd){
             //if(errno == EWOULDBLOCK|| errno == EAGAIN){}
             break;            
         }else if(nbytes==0){
-            std::cout<<"close connection"<<std::endl;
             context_->epoll_server()->UnregisterFD(fd_);            
         }else{
-             std::cout<<"MockEndpoint::OnReadEvent "<<nbytes<<std::endl;
              recv_bytes_+=nbytes;
         }       
     }    
@@ -130,7 +128,7 @@ int PhysicalSocketServer::Listen(int backlog){
     if(fd_>=0){
         err = ::listen(fd_, backlog);
         if(err==0){
-            context_->epoll_server()->RegisterFD(fd_, this,EPOLLIN);
+            context_->epoll_server()->RegisterFD(fd_, this,EPOLLIN|EPOLLET);
         }
     }
     return err;
@@ -166,9 +164,8 @@ void PhysicalSocketServer::OnReadEvent(int fd){
     sockaddr_storage addr_storage;
     socklen_t addr_len = sizeof(addr_storage);
     sockaddr* addr = reinterpret_cast<sockaddr*>(&addr_storage);
-    int s=Accept(addr,&addr_len);
-    std::cout<<"PhysicalSocketServer::OnReadEvent "<<s<<std::endl;
-    if(s>=0){
+    int s=-1;
+    while((s=Accept(addr,&addr_len))>=0){
         backend_->CreateEndpoint(context_,s);
     }
 }
