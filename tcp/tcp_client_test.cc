@@ -1,5 +1,6 @@
 #include "base/cmdline.h"
 #include "base/socket_address.h"
+#include "base/epoll_time.h"
 #include <unistd.h>
 #include <string>
 #include <sys/socket.h>
@@ -50,9 +51,14 @@ int main(int argc, char *argv[]){
     }
     std::cout<<"connected" <<std::endl;
     char sendBuff[1500];
-    for(int i=0;i<10;i++){
-        int ret=write(sockfd, sendBuff,1500); 
+    uint64_t sent_bytes=0;
+    int64_t last=TimeMillis();
+    for(int i=0;i<80000;i++){
+        int ret=write(sockfd, sendBuff,1500);
+        sent_bytes+=ret;
     }
     close(sockfd);
+    int64_t duration=TimeMillis()-last;
+    std::cout<<duration<<" "<<sent_bytes<<std::endl;
     return 0;
 }
