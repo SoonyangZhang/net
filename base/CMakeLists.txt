@@ -7,10 +7,12 @@ ${CMAKE_SOURCE_DIR}/base/base_clock.cc
 ${CMAKE_SOURCE_DIR}/base/base_context.cc
 ${CMAKE_SOURCE_DIR}/base/base_epoll_alarm_factory.cc  
 ${CMAKE_SOURCE_DIR}/base/base_epoll_clock.cc
+${CMAKE_SOURCE_DIR}/base/base_ini.c
 ${CMAKE_SOURCE_DIR}/base/base_thread.cc
 ${CMAKE_SOURCE_DIR}/base/base_time.cc
 ${CMAKE_SOURCE_DIR}/base/byte_codec.cc 
 ${CMAKE_SOURCE_DIR}/base/epoll_thread.cc
+${CMAKE_SOURCE_DIR}/base/file_op.cc
 ${CMAKE_SOURCE_DIR}/base/ip_address.cc
 ${CMAKE_SOURCE_DIR}/base/random.cc
 ${CMAKE_SOURCE_DIR}/base/simple_epoll_server.cc
