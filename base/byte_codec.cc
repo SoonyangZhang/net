@@ -128,6 +128,33 @@ bool DataReader::ReadVarInt62(uint64_t* result){
     }
     return false;    
 }
+bool DataReader::ReadVarInt(uint64_t *result){
+    size_t remaining = BytesRemaining();
+    size_t length=0;
+    bool decodable=false;
+    for(size_t i=0;i<remaining;i++){
+        length++;
+        if((data_[pos_+i]&128)==0){
+            decodable=true;
+            break;
+        }
+        if(length>8){
+            break;
+        }
+    }
+    if((length>0&&length<=8)&&decodable){
+        uint64_t remain=0;
+        uint64_t remain_multi=1;
+        for(size_t i=0;i<length;i++){
+            remain+=(data_[pos_+i]&127)*remain_multi;
+            remain_multi*=128;
+        }
+        *result=remain;        
+        AdvancePos(length);
+        return true;
+    }
+    return false;
+}
 bool DataReader::ReadBytes(void*result,uint32_t size){
   // Make sure that we have enough data to read.
   if (!CanRead(size)) {
@@ -205,6 +232,27 @@ BaseVariableIntegerLength DataWriter::GetVarInt62Len(uint64_t value) {
     return BASE_VARIABLE_LENGTH_2;
   }
   return BASE_VARIABLE_LENGTH_1;
+}
+int DataWriter::GetVarIntLen(uint64_t number){
+    int length=0;
+    if(number<=UINT64_C(0x7f)){
+        length=1;
+    }else if(number<=UINT64_C(0x3fff)){
+        length=2;
+    }else if(number<=UINT64_C(0x1fffff)){
+        length=3;
+    }else if(number<=UINT64_C(0xfffffff)){
+        length=4;
+    }else if(number<=UINT64_C(0x7ffffffff)){
+        length=5;
+    }else if(number<=UINT64_C(0x3ffffffffff)){
+        length=6;
+    }else if(number<=UINT64_C(0x1ffffffffffff)){
+        length=7;
+    }else if(number<=UINT64_C(0xffffffffffffff)){
+        length=8;
+    }
+    return length;
 }
 bool DataWriter::WriteUInt8(uint8_t value){
     return WriteBytes(&value,sizeof(uint8_t));
@@ -306,6 +354,25 @@ bool DataWriter::WriteVarInt62(uint64_t value){
   }
   // Can not encode, high 2 bits not 0
   return false;    
+}
+bool DataWriter::WriteVarInt(uint64_t value){
+    size_t remaining_bytes = remaining();
+    size_t need=GetVarIntLen(value);
+    if(0==need||need>remaining_bytes){
+        return false;
+    }
+    uint8_t first=0;
+    uint64_t next=value;
+    do{
+        first=next%128;
+        next=next/128;
+        uint8_t byte=first;
+        if(next>0){
+            byte|=128;
+        }
+        WriteUInt8(byte);
+    }while(next>0);
+    return true;
 }
 bool DataWriter::WriteBytes(const void* data, size_t data_len){
   char* dest = BeginWrite(data_len);

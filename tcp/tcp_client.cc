@@ -19,14 +19,14 @@ bool TcpClient::AsynConnect(basic::SocketAddress &local,basic::SocketAddress& re
     {
         return success;
     }
+    if(setsockopt(fd_,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int))!=0){
+        Close();
+        return success;        
+    }
     size_t addr_size = sizeof(struct sockaddr_storage);
     if(bind(fd_, (struct sockaddr *)&src_addr_, addr_size)<0){
         Close();
         return success;
-    }
-    if(setsockopt(fd_,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int))!=0){
-        Close();
-        return success;        
     }
     eps_->RegisterFD(fd_, this,EPOLLOUT | EPOLLIN | EPOLLRDHUP | EPOLLERR | EPOLLET);
     if(connect(fd_,(struct sockaddr *)&dst_addr_,addr_size) == -1&& errno != EINPROGRESS){

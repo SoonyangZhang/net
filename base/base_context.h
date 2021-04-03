@@ -2,6 +2,7 @@
 #include <utility>
 #include <memory>
 #include <deque>
+#include <set>
 #include "base_mutex.h"
 #include "base_magic.h"
 #include "epoll_api.h"
@@ -58,6 +59,11 @@ static std::unique_ptr<QueuedTask> NewClosure(Closure&& closure,
 
 class BaseContext{
 public:
+    class ExitVisitor{
+    public:
+        virtual ~ExitVisitor(){}
+        virtual void ExitGracefully()=0;
+    };
     BaseContext();
     virtual ~BaseContext();
     const QuicClock *clock() {return clock_.get();}
@@ -71,6 +77,8 @@ public:
         PostInnerTask(NewClosure(std::forward<Closure>(closure)));
     }
     void HandleEvent();
+    bool RegisterExitVisitor(ExitVisitor *visitor);
+    bool UnRegisterExitVisitor(ExitVisitor *visitor);
 protected:
     void PostInnerTask(std::unique_ptr<QueuedTask> task);
     void ExecuteTask();
@@ -79,5 +87,6 @@ protected:
     std::unique_ptr<BaseAlarmFactory> alarm_factory_;
     mutable basic::Mutex task_mutex_;
     std::deque<std::unique_ptr<basic::QueuedTask>>  queued_tasks_;
+    std::set<ExitVisitor*> exit_visitors_;
 };    
 }

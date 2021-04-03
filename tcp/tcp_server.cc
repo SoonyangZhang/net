@@ -14,6 +14,9 @@ TcpServer::~TcpServer(){
 bool TcpServer::Init(basic::IpAddress &ip,uint16_t port){
     bool success=false;
     if(socket_server_){
+        int yes=1;
+        socket_server_->SetSocketOption(SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int));
+        socket_server_->SetSocketOption(SOL_SOCKET,SO_REUSEPORT,&yes,sizeof(int));
         if(socket_server_->Bind(ip,port)!=0){
             return success;
         }

@@ -227,4 +227,26 @@ in6_addr IpAddress::GetIPv6() const {
   DCHECK(IsIPv6());
   return address_.v6;
 }
+void GetLocalIpAddress(std::vector<IpAddress>&ip_vec){
+    struct ifaddrs *if_addrs=0,*ifa=0;
+    if(getifaddrs(&if_addrs)==-1){
+        return;
+    }
+    for (ifa = if_addrs; ifa != NULL; ifa = ifa->ifa_next) {
+        if(AF_INET==ifa->ifa_addr->sa_family){
+            struct sockaddr_in *in=(struct sockaddr_in *)ifa->ifa_addr;
+            IpAddress temp(in->sin_addr);
+            if(temp!=IpAddress::Loopback4()){
+                ip_vec.push_back(temp);
+            }
+        }else if(AF_INET6==ifa->ifa_addr->sa_family){
+            struct sockaddr_in6 *in6 = (struct sockaddr_in6*)ifa->ifa_addr;
+            IpAddress temp(in6->sin6_addr);
+            if(temp!=IpAddress::Loopback6()){
+                ip_vec.push_back(temp);
+            }
+        }
+    }
+    freeifaddrs(if_addrs);
+}
 }

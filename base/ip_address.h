@@ -7,12 +7,13 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #else
+#include <ifaddrs.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #endif
-
+#include <vector>
 #include <ostream>
 #include <string>
 #include "ip_address_family.h"
@@ -86,4 +87,5 @@ inline std::ostream& operator<<(std::ostream& os, const IpAddress address) {
   os << address.ToString();
   return os;
 }
+void GetLocalIpAddress(std::vector<IpAddress>&ips);
 }

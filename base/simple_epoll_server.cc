@@ -636,7 +636,7 @@ void SimpleEpollServer::WaitForEventsAndCallHandleEvents(
   int64_t expected_wakeup_us = NowInUsec() + timeout_in_us;
 
   int nfds = epoll_wait_impl(epoll_fd_, events, events_size, timeout_in_ms);
-  EPOLL_VLOG(3) << "nfds=" << nfds;
+  //EPOLL_VLOG(3) << "nfds=" << nfds;
 
 #ifdef EPOLL_SERVER_EVENT_TRACING
   event_recorder_.RecordEpollWaitEvent(timeout_in_ms, nfds);

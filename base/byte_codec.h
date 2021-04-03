@@ -31,6 +31,7 @@ public:
     bool ReadBytesToUInt64(size_t num_bytes, uint64_t* result);
     
     bool ReadVarInt62(uint64_t* result);
+    bool ReadVarInt(uint64_t *result);
     bool ReadBytes(void*result,uint32_t size);
     
     // Skips over |size| bytes from the buffer and forwards the internal iterator.
@@ -87,6 +88,7 @@ public:
     DataWriter& operator=(const DataWriter&) = delete;
     ~DataWriter(){}
     static BaseVariableIntegerLength GetVarInt62Len(uint64_t value);
+    static int GetVarIntLen(uint64_t number);
     // Returns the size of the QuicheDataWriter's data.
     size_t length() const { return length_; }
     
@@ -105,6 +107,7 @@ public:
     bool WriteBytesToUInt64(size_t num_bytes, uint64_t value);
     
     bool WriteVarInt62(uint64_t value);
+    bool WriteVarInt(uint64_t value);
     bool WriteBytes(const void* data, size_t data_len);
     
     bool Seek(size_t length);
