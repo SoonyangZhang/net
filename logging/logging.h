@@ -188,6 +188,10 @@ DEFINE_CHECK_FUNC(_NE, !=)
 
 #endif  // DMLC_GLOG_DEFINED
 
+#define DUMMY_LOG(severity) true ? (void)0 : dmlc::LogMessageVoidify() & LOG(severity)
+#define DUMMY_LOG_IF(severity, condition) \
+  (true || !(condition)) ? (void)0 : dmlc::LogMessageVoidify() & LOG(severity)
+
 class DateLogger {
  public:
   DateLogger() {
@@ -218,7 +222,24 @@ class DateLogger {
  private:
   char buffer_[9];
 };
+class DummyOStream {
+ public:
+  template <typename T>
+  DummyOStream& operator<<(T _) { return *this; }
+  inline std::string str() { return ""; }
+};
+class DummyLogMessage {
+ public:
+  DummyLogMessage(const char* file, int line) : log_stream_() {}
+  DummyOStream& stream() { return log_stream_; }
 
+ protected:
+  DummyOStream log_stream_;
+
+ private:
+  DummyLogMessage(const DummyLogMessage&);
+  void operator=(const DummyLogMessage&);
+};
 #ifndef _LIBCPP_SGX_NO_IOSTREAMS
 class LogMessage {
  public:
@@ -267,12 +288,6 @@ class CustomLogMessage {
   std::ostringstream log_stream_;
 };
 #else
-class DummyOStream {
- public:
-  template <typename T>
-  DummyOStream& operator<<(T _) { return *this; }
-  inline std::string str() { return ""; }
-};
 class LogMessage {
  public:
   LogMessage(const char* file, int line) : log_stream_() {}

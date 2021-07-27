@@ -17,6 +17,7 @@ ${CMAKE_SOURCE_DIR}/base/ip_address.cc
 ${CMAKE_SOURCE_DIR}/base/random.cc
 ${CMAKE_SOURCE_DIR}/base/simple_epoll_server.cc
 ${CMAKE_SOURCE_DIR}/base/socket_address.cc
+${CMAKE_SOURCE_DIR}/base/pid_file.cc
 ${CMAKE_SOURCE_DIR}/tcp/tcp_client.cc
 ${CMAKE_SOURCE_DIR}/tcp/tcp_handle.cc
 ${CMAKE_SOURCE_DIR}/tcp/tcp_server.cc

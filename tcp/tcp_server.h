@@ -6,7 +6,7 @@
 namespace basic{
 class SocketServerFactory{
 public:
-    ~SocketServerFactory(){}
+    virtual ~SocketServerFactory(){}
     virtual PhysicalSocketServer* CreateSocketServer(BaseContext *context)=0;
 };
 class TcpServer:public BaseContext{
